@@ -39,8 +39,7 @@ def choix_users(mon_id):
     else :
         choix_menu(mon_id)
 
-def choix_voir_message(mon_id):
-    id_groupe = int(input('Enter the id of the group :'))
+def choix_voir_message(mon_id, id_groupe):
     for d in server['channels']:
         if d['id'] == id_groupe:
             name_groupe = d['name']
@@ -60,36 +59,25 @@ def choix_voir_message(mon_id):
     print('s. send a message')
     print('x. return to the channels')
     print('')
-    choix_message(mon_id, id_groupe, name_groupe)
+    choix_message(mon_id, id_groupe)
 
 
-def choix_message(mon_id, id_groupe, name_groupe):
+def choix_message(mon_id, id_groupe):
     choice = input('enter a choice and press <Enter>:')
     if choice == 'x':
         afficher_channels(mon_id)
         choix_channels(mon_id)
     else :
         content = input('What is the message you want to send :')
-        for d in server['messages']:
+        copy = server['messages']
+        for d in copy:
             if id_groupe == d['channel']:
                 id = max([dic['id'] for dic in server['messages']]) + 1
                 server['messages'].append({'id': id, 'reception_date' : 'now','sender_id': mon_id, 'channel' : id_groupe, 'content' : content})
-        print(name_groupe)
-        print('------------------')
-        for d in server['messages'] :
-            if d['channel'] == id_groupe:
-                reception_date = d['reception_date']
-                sender_id = d['sender_id']
-                content = d['content']
-                for dic in server['users']:
-                    if dic['id'] == sender_id:
-                        name = dic['name']
-                print(reception_date)
-                print(name, ':', content)
-                print('')
-                print('s. send a message')
-                print('x. return to the channels')
-                print('')
+        print('')
+        print('s. send a message')
+        print('x. return to the channels')
+        print('')
         choix_message(mon_id, id_groupe)
 
 
@@ -147,7 +135,8 @@ def choix_channels(mon_id):
         print('')
         choix_channels(mon_id)
     else :
-        choix_voir_message(mon_id)
+        id_groupe = int(input('Enter the id of the group :'))
+        choix_voir_message(mon_id, id_groupe)
     
 
 def choix_menu(mon_id):
