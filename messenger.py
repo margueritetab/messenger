@@ -171,24 +171,27 @@ def afficher_channels(mon_id):
     print('Channels list')
     print('---------')
     print('')
+    has_channel = False
     for d in server['channels']:
         if mon_id in d['member_ids']:
+            has_channel = True
             id_users = d['member_ids']
             membres = []
             for dic in server['users']:
                 if dic['id'] in id_users:
                     membres.append(dic['name'])
             print(d['id'],'.', d['name'], ', membres :', [m for m in membres])
-            print('')
-            print('n. Create channel')
-            print('a. Add a member')
-            print('m. See message')
-            print('x. Main Menu')
-            print('')
-        else:
-            print('you do not have a channel yet')
-            print('')
-            print('n. Create channel')
-            print('x. Main Menu')
-            print('')
+    if has_channel:
+        print('')
+        print('n. Create channel')
+        print('a. Add a member')
+        print('m. See message')
+        print('x. Main Menu')
+        print('')
+    else:
+        print('you do not have a channel yet')
+        print('')
+        print('n. Create channel')
+        print('x. Main Menu')
+        print('')
 connexion()
