@@ -13,11 +13,14 @@ def connexion():
     choice = input('Enter a choice and press <Enter>:')
     if choice == 'c':
         mon_id = int(input('What is your id? :'))
-    else:
+    elif choice == 'i':
         name = input('What is your name ?')
         mon_id = max([d['id'] for d in server['users']]) + 1
         server['users'].append({'id' : mon_id, 'name' : name})
         print('your id is', mon_id)
+    else:
+        print('Unknown option', choice)
+        return connexion()
     choix_menu(mon_id)
 
 def choix_users(mon_id):
@@ -67,7 +70,7 @@ def choix_message(mon_id, id_groupe):
     if choice == 'x':
         afficher_channels(mon_id)
         choix_channels(mon_id)
-    else :
+    elif choice == 's':
         content = input('What is the message you want to send :')
         copy = server['messages'].copy()
         for d in copy:
@@ -78,6 +81,9 @@ def choix_message(mon_id, id_groupe):
         print('s. send a message')
         print('x. return to the channels')
         print('')
+        choix_message(mon_id, id_groupe)
+    else :
+        print('Unknown option', choice)
         choix_message(mon_id, id_groupe)
 
 
@@ -134,9 +140,12 @@ def choix_channels(mon_id):
         print('x. Main Menu')
         print('')
         choix_channels(mon_id)
-    else :
+    elif choice == 'm':
         id_groupe = int(input('Enter the id of the group :'))
         choix_voir_message(mon_id, id_groupe)
+    else :
+        print('Unknown option', choice)
+        choix_channels(mon_id)
     
 
 def choix_menu(mon_id):
@@ -163,9 +172,12 @@ def choix_menu(mon_id):
         print('x. Main Menu')
         print('')
         choix_users(mon_id)
-    else:
+    elif choice == '2':
         afficher_channels(mon_id)
         choix_channels(mon_id)
+    else:
+        print('Unknown option', choice)
+        choix_menu(mon_id)
 
 def afficher_channels(mon_id):
     print('Channels list')
