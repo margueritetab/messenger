@@ -69,7 +69,7 @@ def choix_message(mon_id, id_groupe):
         choix_channels(mon_id)
     else :
         content = input('What is the message you want to send :')
-        copy = server['messages']
+        copy = server['messages'].copy()
         for d in copy:
             if id_groupe == d['channel']:
                 id = max([dic['id'] for dic in server['messages']]) + 1
