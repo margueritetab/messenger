@@ -4,6 +4,11 @@ import json
 with open('server_data.json', 'r') as fichier:
     server = json.load(fichier)
 
+
+def save_server():
+    with open('server_data.json', 'r') as fichier:
+        json.dump(server, fichier, indent=4, ensure_ascii=False)
+
 def connexion():
     print('Messenger')
     print('---------')
@@ -191,7 +196,4 @@ def afficher_channels(mon_id):
             print('x. Main Menu')
             print('')
 
-def save_server():
-    with open('server_data.json', 'r') as fichier:
-        json.dump(server, fichier, indent=4, ensure_ascii=False)
 connexion()
