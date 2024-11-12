@@ -38,6 +38,7 @@ def choix_users(mon_id):
         print('n. Create user')
         print('x. Main Menu')
         print('')
+        save_server()
         choix_users(mon_id)
     else :
         choix_menu(mon_id)
@@ -62,7 +63,6 @@ def choix_voir_message(mon_id, id_groupe):
     print('s. send a message')
     print('x. return to the channels')
     print('')
-    choix_message(mon_id, id_groupe)
 
 
 def choix_message(mon_id, id_groupe):
@@ -81,15 +81,11 @@ def choix_message(mon_id, id_groupe):
         print('s. send a message')
         print('x. return to the channels')
         print('')
+        save_server()
         choix_message(mon_id, id_groupe)
     else :
         print('Unknown option', choice)
         choix_message(mon_id, id_groupe)
-
-
-
-
-
 
 
 def choix_channels(mon_id):
@@ -117,6 +113,7 @@ def choix_channels(mon_id):
         print('x. Main Menu')
         print('')
         choix_channels(mon_id)
+        save_server()
     elif choice == 'x':
         choix_menu(mon_id)
     elif choice == 'a':
@@ -139,6 +136,7 @@ def choix_channels(mon_id):
         print('a. Add a member')
         print('x. Main Menu')
         print('')
+        save_server()
         choix_channels(mon_id)
     elif choice == 'm':
         id_groupe = int(input('Enter the id of the group :'))
@@ -206,4 +204,8 @@ def afficher_channels(mon_id):
         print('n. Create channel')
         print('x. Main Menu')
         print('')
+
+def save_server():
+    with open('server_data.json', 'r') as fichier:
+        json.dump(server, fichier, indent=4, ensure_ascii=False)
 connexion()
