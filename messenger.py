@@ -1,13 +1,88 @@
 from datetime import datetime
 
+class User:
+    def __init__(self, id:int, name:str):
+        self.id = id
+        self.name = name
+    def __repr__(self) -> str:
+        return f'User(id={self.id}, name={self.name})'
+    @classmethod
+    def from_dict(cls, user_dict: dict) ->'User':
+        return cls(user_dict['id'], user_dict['name'])
+
+class Channel:
+    def __init__(self, id:int, name:str, member_ids:list):
+        self.id = id
+        self.name = name
+        self.member_ids = member_ids
+    def __repr__(self) -> str:
+        return f'Channel(id={self.id}, name={self.name}, member_ids={self.member_ids})'
+    @classmethod
+    def from_dict(cls, channel_dict: dict) ->'Channel':
+        return cls(channel_dict['id'], channel_dict['name'], channel_dict['member_ids'])
+    
+class Message:
+    def __init__(self, id:int, reception_date:str, sender_id:int, channel:int, content:str):
+        self.id = id
+        self.reception_date = reception_date
+        self.sender_id = sender_id
+        self.channel = channel
+        self.content = content
+    def __repr__(self) -> str:
+        return f'Message(id={self.id}, reception_date={self.reception_date}, sender_id={self.sender_id}, channel={self.channel}, content={self.content})'
+    @classmethod
+    def from_dict(cls, message_dict: dict) ->'Message':
+        return cls(message_dict['id'], message_dict['recetion_date'], message_dict['sender_id'], message_dict['channel'], message_dict['content'])
+
+class Server:
+    def __init__(self, users:list[User], channels:list[Channel], messages:list[Message]):
+        self.users = users
+        self.channels = channels
+        self.messages = messages
+    def __repr__(self) -> str:
+        return f'Server(users={self.users}, channels={self.channels}, messages=[{self.messages}])'
+    @classmethod
+    def from_dict(cls, server_dict : dict) -> 'Server':
+        new_server = {'users':[], 'channels':[], 'messages':[]}
+        for user in server['users'] :
+            new_server['users'].append(User.from_dict(user))
+        for channel in server['channels'] :
+            new_server['channes'].append(Channel.from_dict(channel))
+        for message in server['messages'] :
+            new_server['messages'].append(Message.from_dict(message))
+        return new_server
+    
+server1 = { "users": [
+        {"id": 1, "name": "Alice"},
+        {"id": 2, "name": "Bob"}
+    ],
+    "channels": [
+        {"id": 1, "name": "Town square", "member_ids": [1, 2]}
+    ],
+    "messages": [
+        {
+            "id": 1,
+            "reception_date": "07/11/2024, 11:06",
+            "sender_id": 1,
+            "channel": 1,
+            "content": "Hi"
+        }
+    ]}
+
+
+
 import json
-with open('server_data.json', 'r') as fichier:
+SERVER_FILE_NAME = 'server-data.json'
+
+with open(SERVER_FILE_NAME) as fichier:
     server = json.load(fichier)
 
 
-def save_server():
-    with open('server_data.json', 'r') as fichier:
-        json.dump(server, fichier, indent=4, ensure_ascii=False)
+server = Server.from_dict(server)
+
+def save_server(server_to_save : dict):
+    json.dump(server_to_save, open(SERVER_FILE_NAME, 'w'))
+
 
 def connexion():
     print('Messenger')
@@ -20,8 +95,8 @@ def connexion():
         mon_id = int(input('What is your id? :'))
     elif choice == 'i':
         name = input('What is your name ?')
-        mon_id = max([d['id'] for d in server['users']]) + 1
-        server['users'].append({'id' : mon_id, 'name' : name})
+        mon_id = max([user.id for user in server.users]) + 1
+        server.users.append(User(mon_id, name))
         print('your id is', mon_id)
     else:
         print('Unknown option', choice)
@@ -32,13 +107,13 @@ def choix_users(mon_id):
     choice = input('Enter a choice and press <Enter>:')
     if choice == 'n':
         name = input('Choose a name :')
-        id = max([d['id'] for d in server['users']]) + 1
-        server['users'].append({'id' : id, 'name' : str(name)})
+        id = max([user.id for user in server.users]) + 1
+        server.users.append(User(id, name))
         print('User list')
         print('---------')
         print('')
-        for d in server['users']:
-            print(d['id'],'.', d['name'])
+        for user in server.users:
+            print(user.id,'.', user.name)
         print('')
         print('n. Create user')
         print('x. Main Menu')
@@ -49,19 +124,19 @@ def choix_users(mon_id):
         choix_menu(mon_id)
 
 def choix_voir_message(mon_id, id_groupe):
-    for d in server['channels']:
-        if d['id'] == id_groupe:
-            name_groupe = d['name']
+    for channel in server.channels:
+        if channel.id == id_groupe:
+            name_groupe = channel.name
     print(name_groupe)
     print('------------------')
-    for d in server['messages'] :
-        if d['channel'] == id_groupe:
-            reception_date = d['reception_date']
-            sender_id = d['sender_id']
-            content = d['content']
-    for d in server['users']:
-        if d['id'] == sender_id:
-            name = d['name']
+    for message in server.messages :
+        if message.channel == id_groupe:
+            reception_date = message.reception_date
+            sender_id = message.sender_id
+            content = message.content
+    for user in server.users:
+        if user.id == sender_id:
+            name = user.name
     print(reception_date)
     print(name, ':', content)
     print('')
@@ -77,11 +152,12 @@ def choix_message(mon_id, id_groupe):
         choix_channels(mon_id)
     elif choice == 's':
         content = input('What is the message you want to send :')
-        copy = server['messages'].copy()
-        for d in copy:
-            if id_groupe == d['channel']:
-                id = max([dic['id'] for dic in server['messages']]) + 1
-                server['messages'].append({'id': id, 'reception_date' : 'now','sender_id': mon_id, 'channel' : id_groupe, 'content' : content})
+        copy = server.messages.copy()
+        for mess in copy:
+            if id_groupe == mess.channel:
+                id = max([message.id for message in server.messages]) + 1
+                reception_date=datetime.now()
+                server.messages.append(Message(id, reception_date, mon_id, id_groupe, content))
         print('')
         print('s. send a message')
         print('x. return to the channels')
@@ -96,7 +172,7 @@ def choix_message(mon_id, id_groupe):
 def choix_channels(mon_id):
     choice = input('Enter a choice and press <Enter>:')
     if choice == 'n':
-        id = max([d['id'] for d in server['channels']]) + 1
+        id = max([channel.id for channel in server.channels]) + 1
         name = input('Choose a channel name :')
         members_name = (input('Members list :'))
         liste_members_name = members_name.split(',')
@@ -105,12 +181,12 @@ def choix_channels(mon_id):
             liste_members_name_finale.append(e.strip())
         liste_id = []
         for m in liste_members_name_finale :
-            for d in server['users']:
-                if d['name'] == m:
-                    liste_id.append(d['id'])
-        server['channels'].append({'id' : id, 'name' : str(name), 'member_ids' : liste_id})
-        for d in server['channels']:
-            print(d)
+            for user in server.users:
+                if user.name == m:
+                    liste_id.append(user.id)
+        server.channels.append(Channel(id, name, liste_id))
+        for channel in server.channels:
+            print(channel)
         print('')
         print('n. Create channel')
         print('a. Add a member')
@@ -127,15 +203,15 @@ def choix_channels(mon_id):
         print('User list')
         print('---------')
         print('')
-        for d in server['users']:
-            print(d['id'],'.', d['name'])
+        for user in server.users:
+            print(user.id,'.', user.name)
         print('')
         member_id = int(input('Id of the member you want to add :'))
-        for dic in server['channels']:
-            if dic['id'] == groupe_id:
-                dic['member_ids'].append(member_id)
-        for d in server['channels']:
-            print(d)
+        for channel in server.channels:
+            if channel.id == groupe_id:
+                channel.member_ids.append(member_id)
+        for channel in server.channels:
+            print(channel)
         print('')
         print('n. Create channel')
         print('a. Add a member')
@@ -168,8 +244,8 @@ def choix_menu(mon_id):
         print('User list')
         print('---------')
         print('')
-        for d in server['users']:
-            print(d['id'],'.', d['name'])
+        for user in server.users:
+            print(user.id,'.', user.name)
         print('')
         print('n. Create user')
         print('x. Main Menu')
@@ -187,15 +263,15 @@ def afficher_channels(mon_id):
     print('---------')
     print('')
     has_channel = False
-    for d in server['channels']:
-        if mon_id in d['member_ids']:
+    for channel in server.channels:
+        if mon_id in channel.member_ids:
             has_channel = True
-            id_users = d['member_ids']
+            id_users = channel.member_ids
             membres = []
-            for dic in server['users']:
-                if dic['id'] in id_users:
-                    membres.append(dic['name'])
-            print(d['id'],'.', d['name'], ', membres :', [m for m in membres])
+            for user in server.users:
+                if user.id in id_users:
+                    membres.append(user.name)
+            print(user.id,'.', user.name, ', membres :', [m for m in membres])
     if has_channel:
         print('')
         print('n. Create channel')
