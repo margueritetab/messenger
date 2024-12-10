@@ -32,7 +32,7 @@ class Message:
         return f'Message(id={self.id}, reception_date={self.reception_date}, sender_id={self.sender_id}, channel={self.channel}, content={self.content})'
     @classmethod
     def from_dict(cls, message_dict: dict) ->'Message':
-        return cls(message_dict['id'], message_dict['recetion_date'], message_dict['sender_id'], message_dict['channel'], message_dict['content'])
+        return cls(message_dict['id'], message_dict['reception_date'], message_dict['sender_id'], message_dict['channel'], message_dict['content'])
 
 class Server:
     def __init__(self, users:list[User], channels:list[Channel], messages:list[Message]):
@@ -43,13 +43,13 @@ class Server:
         return f'Server(users={self.users}, channels={self.channels}, messages=[{self.messages}])'
     @classmethod
     def from_dict(cls, server_dict : dict) -> 'Server':
-        new_server = {'users':[], 'channels':[], 'messages':[]}
-        for user in server['users'] :
-            new_server['users'].append(User.from_dict(user))
-        for channel in server['channels'] :
-            new_server['channes'].append(Channel.from_dict(channel))
-        for message in server['messages'] :
-            new_server['messages'].append(Message.from_dict(message))
+        new_server = Server([], [], [])
+        for user in server_dict['users'] :
+            new_server.users.append(User.from_dict(user))
+        for channel in server_dict['channels'] :
+            new_server.channels.append(Channel.from_dict(channel))
+        for message in server_dict['messages'] :
+            new_server.messages.append(Message.from_dict(message))
         return new_server
     
 server1 = { "users": [
@@ -72,7 +72,7 @@ server1 = { "users": [
 
 
 import json
-SERVER_FILE_NAME = 'server-data.json'
+SERVER_FILE_NAME = 'server_data.json'
 
 with open(SERVER_FILE_NAME) as fichier:
     server = json.load(fichier)
@@ -80,8 +80,15 @@ with open(SERVER_FILE_NAME) as fichier:
 
 server = Server.from_dict(server)
 
-def save_server(server_to_save : dict):
-    json.dump(server_to_save, open(SERVER_FILE_NAME, 'w'))
+def save_server(server_to_save : Server):
+    new_server = {'users':[], 'channels':[], 'messages':[]}
+    for user in server_to_save.users :
+        new_server['users'].append({'id': user.id, 'name':user.name} )
+    for channel in server_to_save.channels :
+        new_server['channels'].append({'id' : channel.id, 'name' : channel.name, 'member_ids':channel.member_ids})
+    for message in server_to_save.messages :
+        new_server['messages'].append({'id':message.id, 'reception_date':message.reception_date, 'sender_id' : message.sender_id, 'channel':message.channel, 'content':message.content})
+    return new_server
 
 
 def connexion():
