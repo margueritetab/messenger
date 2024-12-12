@@ -77,6 +77,9 @@ SERVER_FILE_NAME = 'server_data.json'
 with open(SERVER_FILE_NAME) as fichier:
     server = json.load(fichier)
 
+def sauv(server):
+    with open('server_data.json', "w") as file:
+        json.dump(server, file)
 
 server = Server.from_dict(server)
 
@@ -88,6 +91,8 @@ def save_server(server_to_save : Server):
         new_server['channels'].append({'id' : channel.id, 'name' : channel.name, 'member_ids':channel.member_ids})
     for message in server_to_save.messages :
         new_server['messages'].append({'id':message.id, 'reception_date':message.reception_date, 'sender_id' : message.sender_id, 'channel':message.channel, 'content':message.content})
+    with open(SERVER_FILE_NAME,'w') as json_file :
+       json.dump(new_server,json_file)
     return new_server
 
 
@@ -96,6 +101,7 @@ def connexion():
     print('---------')
     print('i. inscription')
     print('c. connexion')
+    print('x. leave')
     print('')
     choice = input('Enter a choice and press <Enter>:')
     if choice == 'c':
@@ -104,7 +110,11 @@ def connexion():
         name = input('What is your name ?')
         mon_id = max([user.id for user in server.users]) + 1
         server.users.append(User(mon_id, name))
+        save_server(server)
         print('your id is', mon_id)
+    elif choice == 'x':
+        print('Bye !')
+        return None
     else:
         print('Unknown option', choice)
         return connexion()
@@ -125,7 +135,7 @@ def choix_users(mon_id):
         print('n. Create user')
         print('x. Main Menu')
         print('')
-        save_server()
+        save_server(server)
         choix_users(mon_id)
     else :
         choix_menu(mon_id)
@@ -169,7 +179,7 @@ def choix_message(mon_id, id_groupe):
         print('s. send a message')
         print('x. return to the channels')
         print('')
-        save_server()
+        save_server(server)
         choix_message(mon_id, id_groupe)
     else :
         print('Unknown option', choice)
@@ -201,7 +211,7 @@ def choix_channels(mon_id):
         print('x. Main Menu')
         print('')
         choix_channels(mon_id)
-        save_server()
+        save_server(server)
     elif choice == 'x':
         choix_menu(mon_id)
     elif choice == 'a':
@@ -224,7 +234,7 @@ def choix_channels(mon_id):
         print('a. Add a member')
         print('x. Main Menu')
         print('')
-        save_server()
+        save_server(server)
         choix_channels(mon_id)
     elif choice == 'm':
         id_groupe = int(input('Enter the id of the group :'))
@@ -278,7 +288,7 @@ def afficher_channels(mon_id):
             for user in server.users:
                 if user.id in id_users:
                     membres.append(user.name)
-            print(user.id,'.', user.name, ', membres :', [m for m in membres])
+            print(channel.id,'.', channel.name, ', membres :', [m for m in membres])
     if has_channel:
         print('')
         print('n. Create channel')

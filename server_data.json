@@ -1,0 +1,1 @@
+{"users": [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}, {"id": 3, "name": "Oskour"}, {"id": 4, "name": "Mg"}], "channels": [{"id": 1, "name": "Town square", "member_ids": [1, 2]}, {"id": 2, "name": "Aled", "member_ids": [3, 4]}], "messages": [{"id": 1, "reception_date": "07/11/2024 12:00:00", "sender_id": 1, "channel": 1, "content": "Hi \ud83d\udc4b"}]}

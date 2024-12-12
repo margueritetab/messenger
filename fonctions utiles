@@ -1,0 +1,45 @@
+
+def choix_users():
+    choice = input('Enter a choice and press <Enter>:')
+    if choice == 'n':
+        name = input('Choisir un nom :')
+        id = max([d['id'] for d in server['users']]) + 1
+        server['users'].append({'id' : id, 'name' : str(name)})
+        print('User list')
+        print('---------')
+        print('')
+        for d in server['users']:
+            print(d['id'],'.', d['name'])
+        print('')
+        print('n. Create user')
+        print('x. Main Menu')
+        print('')
+        choix_users()
+    else :
+        choix_menu()
+
+
+def choix_menu():
+    print('=== Messenger ===')
+    print('')
+    print('1. See users')
+    print('2. See channels')
+    print('')
+    print('x. Leave')
+    print('')
+    choice = input('Select an option: ')
+    print('')
+    if choice == 'x':
+        print('Bye !')
+        return None
+    elif choice == '1':
+        print('User list')
+        print('---------')
+        print('')
+        for d in server['users']:
+            print(d['id'],'.', d['name'])
+        print('')
+        print('n. Create user')
+        print('x. Main Menu')
+        print('')
+        choix_users()
