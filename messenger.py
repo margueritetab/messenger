@@ -1,5 +1,7 @@
 from datetime import datetime
 
+# essai
+
 class User:
     def __init__(self, id:int, name:str):
         self.id = id
@@ -68,8 +70,6 @@ server1 = { "users": [
             "content": "Hi"
         }
     ]}
-
-
 
 import json
 SERVER_FILE_NAME = 'server_data.json'
