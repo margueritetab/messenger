@@ -51,6 +51,31 @@ class Server:
         for message in server_dict['messages'] :
             new_server.messages.append(Message.from_dict(message))
         return new_server
+
+    @classmethod
+    def from_file(cls, file_path: str) -> 'Server':
+        """Charge un fichier JSON et crée une instance de Server."""
+        with open(file_path, "r") as f:
+            server_dict = json.load(f)
+        return cls.from_dict(server_dict)
+
+    def load(self, file_path: str):
+        """Charge les données JSON depuis un fichier et met à jour le serveur."""
+        with open(file_path, "r") as f:
+            server_dict = json.load(f)
+        self.users = [User.from_dict(user) for user in server_dict.get('users', [])]
+        self.channels = [Channel.from_dict(channel) for channel in server_dict.get('channels', [])]
+        self.messages = [Message.from_dict(message) for message in server_dict.get('messages', [])]
+
+    def save(self, file_path: str):
+        """Sauvegarde les données du serveur dans un fichier JSON."""
+        server_data = {
+            'users': [user.to_dict() for user in self.users],
+            'channels': [channel.to_dict() for channel in self.channels],
+            'messages': [message.to_dict() for message in self.messages]
+        }
+        with open(file_path, "w") as f:
+            json.dump(server_data, f)
     
 server1 = { "users": [
         {"id": 1, "name": "Alice"},
