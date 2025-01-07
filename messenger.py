@@ -1,4 +1,6 @@
 from datetime import datetime
+import json
+
 
 class User:
     def __init__(self, id:int, name:str):
@@ -77,10 +79,10 @@ class Client:
             return None
         else:
             print('Unknown option', choice)
-            return self.connexion(self)
-        self.choix_menu(mon_id, self)
+            return self.connexion()
+        self.choix_menu(mon_id)
 
-    def choix_users(mon_id, self):
+    def choix_users(self, mon_id):
         choice = input('Enter a choice and press <Enter>:')
         if choice == 'n':
             name = input('Choose a name :')
@@ -96,11 +98,11 @@ class Client:
             print('x. Main Menu')
             print('')
             save_server(self.server)
-            self.choix_users(mon_id, self)
+            self.choix_users(mon_id)
         else :
-            self.choix_menu(mon_id, self)
+            self.choix_menu(mon_id)
 
-    def choix_voir_message(mon_id, id_groupe, self):
+    def choix_voir_message(self, mon_id, id_groupe):
         for channel in self.server.channels:
             if channel.id == id_groupe:
                 name_groupe = channel.name
@@ -121,11 +123,11 @@ class Client:
         print('x. return to the channels')
         print('') 
 
-    def choix_message(mon_id, id_groupe, self):
+    def choix_message(self, mon_id, id_groupe):
         choice = input('enter a choice and press <Enter>:')
         if choice == 'x':
-            self.afficher_channels(mon_id, self)
-            self.choix_channels(mon_id, self)
+            self.afficher_channels(mon_id)
+            self.choix_channels(mon_id)
         elif choice == 's':
             content = input('What is the message you want to send :')
             copy = self.server.messages.copy()
@@ -139,12 +141,12 @@ class Client:
             print('x. return to the channels')
             print('')
             save_server(self.server)
-            self.choix_message(mon_id, id_groupe, self)
+            self.choix_message(mon_id, id_groupe)
         else :
             print('Unknown option', choice)
-            self.choix_message(mon_id, id_groupe, self)  
+            self.choix_message(mon_id, id_groupe)  
 
-    def afficher_channels(mon_id, self):
+    def afficher_channels(self, mon_id):
         print('Channels list')
         print('---------')
         print('')
@@ -172,7 +174,7 @@ class Client:
             print('x. Main Menu')
             print('')
 
-    def choix_channels(mon_id, self):
+    def choix_channels(self, mon_id):
         choice = input('Enter a choice and press <Enter>:')
         if choice == 'n':
             id = max([channel.id for channel in self.server.channels]) + 1
@@ -196,10 +198,10 @@ class Client:
             print('m. See message')
             print('x. Main Menu')
             print('')
-            self.choix_channels(mon_id, self)
+            self.choix_channels(mon_id)
             save_server(self.server)
         elif choice == 'x':
-            self.choix_menu(mon_id, self)
+            self.choix_menu(mon_id)
         elif choice == 'a':
             groupe_id = int(input('Which channel id ? :'))
             print('')
@@ -221,15 +223,15 @@ class Client:
             print('x. Main Menu')
             print('')
             save_server(self.server)
-            self.choix_channels(mon_id, self)
+            self.choix_channels(mon_id)
         elif choice == 'm':
             id_groupe = int(input('Enter the id of the group :'))
-            self.choix_voir_message(mon_id, id_groupe, self)
+            self.choix_voir_message(mon_id, id_groupe)
         else :
             print('Unknown option', choice)
-            self.choix_channels(mon_id, self)
+            self.choix_channels(mon_id)
 
-    def choix_menu(mon_id, self):
+    def choix_menu(self, mon_id):
         print('=== Messenger ===')
         print('')
         print('1. See users')
@@ -252,35 +254,14 @@ class Client:
             print('n. Create user')
             print('x. Main Menu')
             print('')
-            self.choix_users(mon_id, self)
+            self.choix_users(mon_id)
         elif choice == '2':
-            self.afficher_channels(mon_id, self)
-            self.choix_channels(mon_id, self)
+            self.afficher_channels(mon_id)
+            self.choix_channels(mon_id)
         else:
             print('Unknown option', choice)
-            self.choix_menu(mon_id, self)
+            self.choix_menu(mon_id)
 
-
-server1 = { "users": [
-        {"id": 1, "name": "Alice"},
-        {"id": 2, "name": "Bob"}
-    ],
-    "channels": [
-        {"id": 1, "name": "Town square", "member_ids": [1, 2]}
-    ],
-    "messages": [
-        {
-            "id": 1,
-            "reception_date": "07/11/2024, 11:06",
-            "sender_id": 1,
-            "channel": 1,
-            "content": "Hi"
-        }
-    ]}
-
-
-
-import json
 SERVER_FILE_NAME = 'server_data.json'
 
 with open(SERVER_FILE_NAME) as fichier:
