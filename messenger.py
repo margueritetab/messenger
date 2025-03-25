@@ -18,6 +18,6 @@ if arguments.filename is not None:
 elif arguments.url is not None:
     server = RemoteServer(arguments.url)
 
-client = Client(server)
+client = Client(Server)
 
 client.connexion()
