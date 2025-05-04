@@ -5,7 +5,9 @@ from remoteServer import RemoteServer
 
 
 class Client:
-    def __init__(self, server:"Server"):
+    # Vous pouvez indiquer que votre variable `server` est soit
+    # du type `Server`, soit du type `RemoteServer`
+    def __init__(self, server:"Server | RemoteServer"):
         self.server = server
     
     def connexion(self):
@@ -20,9 +22,11 @@ class Client:
             mon_id = int(input('What is your id? :'))
         elif choice == 'i':
             name = input('What is your name ?')
-            mon_id = max([user.id for user in self.server.users()]) + 1
-            self.server.add_user(name)
-            self.server.save_server()
+            # La gestion des identifiants se fait plutôt
+            # côté serveur. De même, l'appel à `save_server`
+            # a du sens pour un `Server`, mais pas pour un `RemoteServer`.
+            me = self.server.add_user(name)
+            mon_id = me.id
             print('your id is', mon_id)
         elif choice == 'x':
             print('Bye !')
@@ -32,12 +36,15 @@ class Client:
             return self.connexion()
         self.choix_menu(mon_id)
 
-    def choix_users(self, mon_id):
+    def choix_users(self, mon_id: int) -> None:
         choice = input('Enter a choice and press <Enter>:')
         if choice == 'n':
             name = input('Choose a name :')
-            id = max([user.id for user in self.server.users()]) + 1
-            self.server.users.append(User(id, name))
+            self.server.add_user(name)
+            # Plutôt que de répéter les lignes suivantes qui sont déjà
+            # écrites dans `choix_menu`, vous auriez pu
+            # en faire une fonction à part, ou les mettre au début de
+            # votre fonction `choix_users`
             print('User list')
             print('---------')
             print('')
@@ -47,40 +54,48 @@ class Client:
             print('n. Create user')
             print('x. Main Menu')
             print('')
-            self.server.save_server(self.server)
             self.choix_users(mon_id)
         else :
             self.choix_menu(mon_id)
 
-    def choix_voir_message(self, mon_id, id_groupe):
-        for channel in self.server.channels:
+    def choix_voir_message(self, mon_id: int, id_groupe: int) -> None:
+        for channel in self.server.channels():
             if channel.id == id_groupe:
                 name_groupe = channel.name
         print(name_groupe)
         print('------------------')
-        for message in self.server.messages :
+        for message in self.server.messages():
             if message.channel == id_groupe:
                 reception_date = message.reception_date
                 sender_id = message.sender_id
                 content = message.content
-        for user in self.server.users():
-            if user.id == sender_id:
-                name = user.name
-        print(reception_date)
-        print(name, ':', content)
-        print('')
-        print('s. send a message')
-        print('x. return to the channels')
-        print('') 
+        # Attention, comme vous n'aviez pas inclus cette boucle
+        # dans l'autre, seul un message s'affichait
+                for user in self.server.users():
+                    if user.id == sender_id:
+                        name = user.name
+                print(reception_date)
+                print(name, ':', content)
+                print('')
+                print('s. send a message')
+                print('x. return to the channels')
+                print('')
 
-    def choix_message(self, mon_id, id_groupe):
+    def choix_message(self, mon_id: int, id_groupe: int) -> None:
         choice = input('enter a choice and press <Enter>:')
         if choice == 'x':
             self.afficher_channels(mon_id)
             self.choix_channels(mon_id)
         elif choice == 's':
             content = input('What is the message you want to send :')
-            copy = self.server.messages.copy()
+            copy = self.server.messages().copy()
+            # Pourquoi itérez-vous sur tous les messages ?
+            # Avec ce code, vous allez créer un nouveau message
+            # par message déjà existant dans le groupe.
+            # Vous n'avez pas besoin de boucle : vous avez déjà
+            # tout ce dont vous avez besoin pour appeler une
+            # nouvelle fonction `server.send_message` qui s'occupera
+            # de créer l'objet `Message`.
             for mess in copy:
                 if id_groupe == mess.channel:
                     id = max([message.id for message in self.server.messages()]) + 1
@@ -96,12 +111,12 @@ class Client:
             print('Unknown option', choice)
             self.choix_message(mon_id, id_groupe)  
 
-    def afficher_channels(self, mon_id):
+    def afficher_channels(self, mon_id: int) -> None:
         print('Channels list')
         print('---------')
         print('')
         has_channel = False
-        for channel in self.channels():
+        for channel in self.server.channels():
             if mon_id in channel.member_ids:
                 has_channel = True
                 id_users = channel.member_ids
@@ -124,10 +139,10 @@ class Client:
             print('x. Main Menu')
             print('')
 
-    def choix_channels(self, mon_id):
+    def choix_channels(self, mon_id: int) -> None:
         choice = input('Enter a choice and press <Enter>:')
         if choice == 'n':
-            id = max([channel.id for channel in Server.channels()]) + 1
+            id = max([channel.id for channel in self.server.channels()]) + 1
             name = input('Choose a channel name :')
             members_name = (input('Members list :'))
             liste_members_name = members_name.split(',')
@@ -136,11 +151,14 @@ class Client:
                 liste_members_name_finale.append(e.strip())
             liste_id = []
             for m in liste_members_name_finale :
-                for user in self.server.users:
+                for user in self.server.users():
                     if user.name == m:
                         liste_id.append(user.id)
+            # Comme pour les users, il vaut mieux créer des fonctions
+            # `Server.add_channel` et `RemoteServer.add_channel`,
+            # et se contenter d'appeler `server.add_channel` ici.
             self.server.channels.append(Channel(id, name, liste_id))
-            for channel in Server.channels:
+            for channel in self.server.channels():
                 print(channel)
             print('')
             print('n. Create channel')
@@ -149,7 +167,6 @@ class Client:
             print('x. Main Menu')
             print('')
             self.choix_channels(mon_id)
-            self.server.save_server(self.server)
         elif choice == 'x':
             self.choix_menu(mon_id)
         elif choice == 'a':
@@ -158,12 +175,14 @@ class Client:
             print('User list')
             print('---------')
             print('')
-            for user in self.server.users:
+            for user in self.server.users():
                 print(user.id,'.', user.name)
             print('')
             member_id = int(input('Id of the member you want to add :'))
             for channel in self.server.channels():
                 if channel.id == groupe_id:
+                    # Il vaut mieux créer des fonctions `add_channel_member`
+                    # côté serveur.
                     channel.member_ids.append(member_id)
             for channel in self.server.channels():
                 print(channel)
@@ -172,7 +191,6 @@ class Client:
             print('a. Add a member')
             print('x. Main Menu')
             print('')
-            self.server.save_server(self.server)
             self.choix_channels(mon_id)
         elif choice == 'm':
             id_groupe = int(input('Enter the id of the group :'))
@@ -181,7 +199,7 @@ class Client:
             print('Unknown option', choice)
             self.choix_channels(mon_id)
 
-    def choix_menu(self, mon_id):
+    def choix_menu(self, mon_id: int) -> None:
         print('=== Messenger ===')
         print('')
         print('1. See users')
